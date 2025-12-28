@@ -11,17 +11,12 @@ export default function TabLayout() {
   const { loading, isLogin } = useAppContext();
   const colorScheme = useColorScheme();
   const router = useRouter();
-
-  // 🔐 BLOQUEO TOTAL SI YA ESTÁ LOGUEADO
   useEffect(() => {
-    if (isLogin) {
-      router.replace('/(admins)/perfil');
+    if (!isLogin) {
+      router.replace('/(tabs)');
     }
   }, [isLogin]);
-
-  // ⛔ evita render fantasma
-  if (isLogin) return null;
-
+  if (!isLogin) return null;
   return (
     <Tabs
       screenOptions={{
@@ -30,9 +25,60 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
       }}>
       <Tabs.Screen
-        name="index"
+        name="perfil"
         options={{
-          title: 'Home',
+          title: 'Perfil',
+          tabBarButton: (props) => (
+            <HapticTab
+              {...props}
+              disabled={loading}
+              style={[
+                props.style, // importante: preserva estilos originales
+                { opacity: loading ? 0.4 : 1 },
+              ]}
+            />
+          ),
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name={"person.fill" as any} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="register"
+        options={{
+          title: 'Estudiantes',
+          tabBarButton: (props) => (
+            <HapticTab
+              {...props}
+              disabled={loading}
+              style={[
+                props.style, // importante: preserva estilos originales
+                { opacity: loading ? 0.4 : 1 },
+              ]}
+            />
+          ),
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name={"registro.fill" as any} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          title: 'Explore',
+          tabBarButton: (props) => (
+            <HapticTab
+              {...props}
+              disabled={loading}
+              style={[
+                props.style, // importante: preserva estilos originales
+                { opacity: loading ? 0.4 : 1 },
+              ]}
+            />
+          ),
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="admin"
+        options={{
+          title: 'Admin',
           tabBarButton: (props) => (
             <HapticTab
               {...props}
@@ -46,24 +92,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="login"
-        options={{
-          title: 'Login',
-          tabBarButton: (props) => (
-            <HapticTab
-              {...props}
-              disabled={loading}
-              style={[
-                props.style, // importante: preserva estilos originales
-                { opacity: loading ? 0.4 : 1 },
-              ]}
-            />
-          ),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
-        }}
-      />
-
     </Tabs>
   );
 }
