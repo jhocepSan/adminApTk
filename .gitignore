@@ -45,4 +45,6 @@ app-example
 
 # otros archivos
 .dockerignore
+/.devcontainer
 dockerfile
+docker-compose.yml

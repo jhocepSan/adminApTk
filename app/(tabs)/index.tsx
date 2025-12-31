@@ -13,6 +13,7 @@ export default function HomeScreen() {
   if (isLogin==true) return null;
   return (
     <ParallaxScrollView
+      style={{padding: 20}}
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
         <Image

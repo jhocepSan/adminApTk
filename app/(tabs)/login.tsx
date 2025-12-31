@@ -22,7 +22,7 @@ export default function login() {
                 ToastAndroid.showWithGravity("Campos Vacios, no PERMITIDO", ToastAndroid.SHORT, ToastAndroid.CENTER);
             } else {
                 setLoading(true);
-                var result = await ApiRest.loginUser({ correo: email, password: password });
+                let result = await ApiRest.loginUser({ correo: email, password: password });
                 if (result.ok) {
                     console.log("guardas datos");
                     await Store.createKey(result.ok);
@@ -41,6 +41,7 @@ export default function login() {
     }
     return (
         <ParallaxScrollView
+            style={{padding: 26}}
             headerBackgroundColor={{ light: '#A1CEDC', dark: '#3d4777ff' }}
             headerImage={
                 <Image

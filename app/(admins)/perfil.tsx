@@ -3,13 +3,14 @@ import MapaLeaflet from '@/components/mapa-leaftlet'
 import { ThemedButton } from '@/components/themed-buton-icon'
 import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
+import { imgEdit } from '@/constants/typesdata'
 import { useAppContext } from '@/context/context-aplication'
 import Store from '@/restapi/store'
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
 import { Alert, StatusBar, StyleSheet, ToastAndroid } from 'react-native'
 
-export default function perfil() {
+export default function Perfil() {
     const { setUser, setIsLogin, user } = useAppContext();
     const router = useRouter();
     const cerrarEliminarUsuario = async () => {
@@ -37,8 +38,11 @@ export default function perfil() {
             )
         )
     }
-    function goRoot(ruta:string){
-        router.push(`/${ruta}` as any);
+    function goRoot(ruta:string,info:imgEdit){
+        router.push({
+            pathname:`/${ruta}` as any,
+            params:{...info}
+        });
     }
     return (
         <ThemedView style={styles.container}>
@@ -69,21 +73,21 @@ export default function perfil() {
                     <ThemedButton
                         icon="account-box"
                         iconSet="material"
-                        onPress={() => goRoot('editusuario')}
+                        onPress={() => goRoot('editusuario',{'id':0,'tipo':''})}
                         title="Modificar Datos"
                         style={styles.btnEditUser}
                     />
                     <ThemedButton
                         icon="camera-alt"
                         iconSet="material"
-                        onPress={() => cerrarUsuario()}
+                        onPress={() => goRoot('changeimg',{'id':user?.id??0,'tipo':'U'})}
                         title="Cambiar Foto"
                         style={styles.btnEditUser}
                     />
                     <ThemedButton
                         icon="fmd-good"
                         iconSet="material"
-                        onPress={() => cerrarUsuario()}
+                        onPress={() => goRoot('positionmap',{'id':user?.id??0,'tipo':'U'})}
                         title="Cambiar Ubicación"
                         style={styles.btnEditUser}
                     />

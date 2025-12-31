@@ -18,13 +18,13 @@ export function UserCard({
 }: UserCardProps) {
 
     const backgroundColor = useThemeColor(
-        { light: '#ffffff', dark: '#1c1c1e' },
+        { light: '#a8a8a86c', dark: '#9c9c9c33' },
         'background'
     );
 
     const textColor = useThemeColor(
         { light: '#111111', dark: '#ffffff' },
-        'text'
+        'text' 
     );
 
     const borderColor = useThemeColor(
@@ -70,10 +70,10 @@ const styles = StyleSheet.create({
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 12,
+        padding: 5,
         borderRadius: 12,
         borderWidth: 1,
-        marginVertical: 6,
+        marginBottom: 6,
     },
     avatar: {
         width: 56,

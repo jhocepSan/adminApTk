@@ -42,6 +42,23 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="docentes"
+        options={{
+          title: 'Docentes',
+          tabBarButton: (props) => (
+            <HapticTab
+              {...props}
+              disabled={loading}
+              style={[
+                props.style, // importante: preserva estilos originales
+                { opacity: loading ? 0.4 : 1 },
+              ]}
+            />
+          ),
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name={"docentes.fill" as any} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="register"
         options={{
           title: 'Estudiantes',
@@ -59,9 +76,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="horarios"
         options={{
-          title: 'Explore',
+          title: 'Horarios',
           tabBarButton: (props) => (
             <HapticTab
               {...props}
@@ -72,13 +89,13 @@ export default function TabLayout() {
               ]}
             />
           ),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name={"horarios.fill" as any} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="admin"
+        name="campeonato"
         options={{
-          title: 'Admin',
+          title: 'Campeonato',
           tabBarButton: (props) => (
             <HapticTab
               {...props}
@@ -89,7 +106,7 @@ export default function TabLayout() {
               ]}
             />
           ),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name={"campeonato.fill" as any} color={color} />,
         }}
       />
     </Tabs>

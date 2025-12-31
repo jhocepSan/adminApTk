@@ -2,13 +2,16 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { ToastAndroid } from 'react-native';
 import Store from '../restapi/store';
 export type Usuario = {
-    id: string;
+    id?: number;
     nombres: string;
     apellido: string;
     nombreclub: string;
-    email: string;
+    correo: string;
     latitud: number;
     longitud: number;
+    cedula: number;
+    celular: number;
+    idclub: number;
 };
 // Definimos el tipo de estado global
 type AppContextType = {
@@ -41,7 +44,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const cargarCredenciales = async () => {
             try {
-                var result = await Store.cargarKey()
+                let result = await Store.cargarKey()
                 if (result) {
                     setUser(JSON.parse(result));
                     setIsLogin(true);
