@@ -7,6 +7,27 @@ export type userCard = {
     genero: string;
 };
 
+export type docenteCard = {
+    iddocente:number;
+    iddato:number;
+    idclub:number;
+    idcinturon:number;
+    name_estado:string;
+    nombres: string;
+    apellidos: string;
+    especialidad:string;
+    fecha_nac:string;
+    edad: number;
+    ci: number;
+    celular:number;
+    name_club:string;
+    imagen: string;
+    genero: string;
+    mame_genero:string;
+    cinturon:string;
+    colores:string;
+};
+
 export type usuario = {
     id: string;
     nombres: string;

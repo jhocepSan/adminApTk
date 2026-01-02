@@ -1,16 +1,22 @@
+import { ThemedLoader } from '@/components/themed-loading';
 import { IconSet } from '@/constants/typesdata';
+import { useAppContext } from '@/context/context-aplication';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, ToastAndroid, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
-
+import ApiRest from '../restapi/api';
 type SearchParams = {
     id: number;
     tipo: string;
 };
+interface UbicacionCoords {
+    latitud: number;
+    longitud: number;
+}
 
 function RenderIcon({
     icon,
@@ -30,20 +36,35 @@ function RenderIcon({
     return <Ionicons name={icon} size={size} color={color} />;
 }
 
-export default function positionmap() {
-    const { id, tipo } = useLocalSearchParams<SearchParams>();
-    const ubicacion = useRef(null);
+export default function PositionMap() {
+    const { loading,setLoading, setInfoHelp, infoHelp } = useAppContext();
+    const { id, tipo } = useLocalSearchParams() as unknown as SearchParams;
+    const ubicacion = useRef<UbicacionCoords | null>(null);
     const webViewRef = useRef<WebView>(null);
 
     const manejarMensaje = (event: any) => {
         const datos = JSON.parse(event.nativeEvent.data);
-        console.log(datos)
         ubicacion.current = datos;// Aquí ya tienes la lat y lng actualizadas
     };
 
-    const guardarUbicacion = () => {
-        console.log("Guardando ubicación seleccionada:", ubicacion);
-        // Aquí puedes hacer el fetch a tu API o router.back()
+    const guardarUbicacion = async () => {
+        try {
+            setLoading(true);
+            const result = await ApiRest.agregarLocation({tipo,id,...ubicacion.current});
+            console.log(result.ok)
+            if(result.ok){
+                setInfoHelp({ ...infoHelp, 'idubicacion':result.ok.insertId===0?id:result.ok.insertId,...ubicacion.current})
+                router.back()
+            }else{
+                ToastAndroid.showWithGravity(result.error, ToastAndroid.LONG, ToastAndroid.CENTER);
+            }
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Error inesperado';
+            ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.CENTER);
+        } finally {
+            setLoading(false);
+        }
+        
     };
     const leafletHTML = useMemo(() => {
         return `
@@ -68,7 +89,7 @@ export default function positionmap() {
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution: '' }).addTo(map);
             window.clubMarker = L.marker(map.getCenter(), { icon: clubIcon })
                 .addTo(map)
-                .bindPopup('Ubicación Club',{autoClose: true})
+                .bindPopup("",{autoClose: true})
                 .openPopup();
             map.on('move', function() {
                 const centro = map.getCenter();
@@ -88,6 +109,14 @@ export default function positionmap() {
                 if(coords.lat && coords.lng) {
                     map.setView([coords.lat, coords.lng], 15); // Centra el mapa
                     clubMarker.setLatLng([coords.lat, coords.lng]); // Mueve el marcador
+                    const tipo='${tipo}'
+                    if(tipo=='C'){
+                        clubMarker.bindPopup("Ubicación Club").openPopup()
+                    }else if (tipo=='D'){
+                        clubMarker.bindPopup("Ubicación Docente").openPopup()
+                    }else{
+                        clubMarker.bindPopup("Ubicación").openPopup()
+                    }
                 }
             });
             </script>
@@ -102,16 +131,16 @@ export default function positionmap() {
 
         let location = await Location.getCurrentPositionAsync({});
         const nuevasCoords = {
-            lat: location.coords.latitude,
-            lng: location.coords.longitude
+            latitud: location.coords.latitude,
+            longitud: location.coords.longitude
         };
 
         ubicacion.current = nuevasCoords;
 
         // ENVIAR LAS COORDENADAS AL MAPA
         const script = `window.postMessage(JSON.stringify({
-            lat: ${nuevasCoords.lat}, 
-            lng: ${nuevasCoords.lng}
+            lat: ${nuevasCoords.latitud}, 
+            lng: ${nuevasCoords.longitud}
         }), "*");`;
 
         webViewRef.current?.injectJavaScript(script);
@@ -150,7 +179,7 @@ export default function positionmap() {
                 </View>
                 <View style={styles.columnas}>
                     <Pressable
-                        onPress={() => { }}
+                        onPress={() => guardarUbicacion()}
                         style={styles.button}
                     >
                         <RenderIcon
@@ -161,6 +190,9 @@ export default function positionmap() {
                     </Pressable>
                 </View>
             </View>
+            <ThemedLoader
+                visible={loading} fullscreen
+            />
         </SafeAreaView>
     )
 }

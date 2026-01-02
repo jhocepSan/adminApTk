@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { StyleSheet, ToastAndroid } from 'react-native';
 import ApiRest from '../../restapi/api';
 
-export default function login() {
+export default function Login() {
     const { setLoading, loading, setIsLogin, setUser } = useAppContext();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

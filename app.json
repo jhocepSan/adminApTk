@@ -46,7 +46,8 @@
           "photosPermission": "La aplicación necesita acceder a tus fotos para compartirlas.",
           "cameraPermission": "La aplicación necesita acceder a la cámara para tomar fotos."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

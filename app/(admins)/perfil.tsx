@@ -5,17 +5,17 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { imgEdit } from '@/constants/typesdata'
 import { useAppContext } from '@/context/context-aplication'
-import Store from '@/restapi/store'
+import store from '@/restapi/store'
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
-import { Alert, StatusBar, StyleSheet, ToastAndroid } from 'react-native'
+import { Alert, StatusBar, StyleSheet, Text, ToastAndroid, View } from 'react-native'
 
 export default function Perfil() {
     const { setUser, setIsLogin, user } = useAppContext();
     const router = useRouter();
     const cerrarEliminarUsuario = async () => {
         try {
-            await Store.clearKey();
+            await store.clearKey();
             setIsLogin(false);
             setUser(null);
         } catch (error) {
@@ -38,62 +38,76 @@ export default function Perfil() {
             )
         )
     }
-    function goRoot(ruta:string,info:imgEdit){
+    function goRoot(ruta: string, info: imgEdit) {
         router.push({
-            pathname:`/${ruta}` as any,
-            params:{...info}
+            pathname: `/${ruta}` as any,
+            params: { ...info }
         });
     }
     return (
         <ThemedView style={styles.container}>
+            {/* HEADER ÚNICO CORREGIDO */}
             <ThemedView style={styles.header}>
                 <Image
                     source={require('@/assets/images/tk-welcome.png')}
                     style={styles.imagenPerfil}
                 />
-                <ThemedView >
-                    <ThemedText type="title">{user?.apellido}</ThemedText>
-                    <ThemedView style={styles.containerLogount}>
-                        <ThemedView >
-                            <ThemedText type="subtitle">{user?.nombres}</ThemedText>
-                            <ThemedText type="default">{user?.nombreclub}</ThemedText>
-                        </ThemedView>
-                        <ThemedButton
-                            icon="logout"
-                            iconSet="material"
-                            onPress={() => cerrarUsuario()}
-                            title="Salir"
-                            style={styles.button}
-                        />
-                    </ThemedView>
-                </ThemedView>
+
+                <View style={styles.userInfoContainer}>
+                    <View style={styles.nameSection}>
+                        <ThemedText type="title" style={styles.apellidoText}>
+                            {user?.apellido || 'Apellido'}
+                        </ThemedText>
+                        <ThemedText style={styles.nombreText}>
+                            {user?.nombres || 'Nombre'}
+                        </ThemedText>
+                    </View>
+
+                    <View style={styles.clubBadge}>
+                        <Text style={styles.clubText}>
+                            {user?.nombreclub || 'Sin Club'}
+                        </Text>
+                    </View>
+                </View>
+
+                {/* BOTÓN DE LOGOUT */}
+                <ThemedButton
+                    icon="logout"
+                    iconSet="material"
+                    onPress={() => cerrarUsuario()}
+                    title=""
+                    style={styles.logoutIconButton}
+                />
             </ThemedView>
-            <ScrollableView>
-                <ThemedView >
+
+            <ScrollableView >
+                <ThemedView style={styles.menuContainer}>
                     <ThemedButton
                         icon="account-box"
                         iconSet="material"
-                        onPress={() => goRoot('editusuario',{'id':0,'tipo':''})}
+                        onPress={() => goRoot('editusuario', { 'id': 0, 'tipo': '' })}
                         title="Modificar Datos"
                         style={styles.btnEditUser}
                     />
                     <ThemedButton
                         icon="camera-alt"
                         iconSet="material"
-                        onPress={() => goRoot('changeimg',{'id':user?.id??0,'tipo':'U'})}
+                        onPress={() => goRoot('changeimg', { 'id': user?.id ?? 0, 'tipo': 'U' })}
                         title="Cambiar Foto"
                         style={styles.btnEditUser}
                     />
                     <ThemedButton
                         icon="fmd-good"
                         iconSet="material"
-                        onPress={() => goRoot('positionmap',{'id':user?.id??0,'tipo':'U'})}
+                        onPress={() => goRoot('positionmap', { 'id': user?.id ?? 0, 'tipo': 'C' })}
                         title="Cambiar Ubicación"
                         style={styles.btnEditUser}
                     />
-                    <MapaLeaflet />
+
+                    <View style={styles.mapWrapper}>
+                        <MapaLeaflet />
+                    </View>
                 </ThemedView>
-                
             </ScrollableView>
         </ThemedView>
     )
@@ -107,34 +121,74 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        padding: 6,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
         borderBottomWidth: 1,
-        borderColor: '#ddd',
-    },
-    containerLogount: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12
+        borderBottomColor: 'rgba(150,150,150,0.1)',
     },
     imagenPerfil: {
-        width: 80,
-        height: 80,
-        borderRadius: 40
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        borderWidth: 2,
+        borderColor: '#214950ff',
     },
-    button: {
-        width: 85,
-        height: 45,
-        marginBottom: 10,
-        backgroundColor: '#a81313ff',
+    userInfoContainer: {
+        flex: 1, // Esto es vital para que el nombre tome el espacio central
+        marginLeft: 12,
+        justifyContent: 'center',
     },
-    btnEditUser:{
+    nameSection: {
+        marginBottom: 2,
+    },
+    apellidoText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+    },
+    nombreText: {
+        fontSize: 15,
+        opacity: 0.7,
+        color: '#666'
+    },
+    clubBadge: {
+        alignSelf: 'flex-start',
+        backgroundColor: '#21495015',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    clubText: {
+        fontSize: 11,
+        color: '#214950ff',
+        fontWeight: 'bold',
+    },
+    logoutIconButton: {
+        width: 50,
+        height: 50,
+        borderRadius: 22,
+        backgroundColor: '#a81313',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 8,
+    },
+    menuContainer: {
+        padding: 3,
+    },
+    btnEditUser: {
         width: '100%',
-        height: 45,
+        height: 50,
         marginBottom: 10,
         backgroundColor: '#214950ff',
+        borderRadius: 10,
     },
-    containerScroll:{
-        padding: 10 ,
+    mapWrapper: {
+        height: '80%',
+        borderRadius: 15,
+        overflow: 'hidden',
+        marginTop: 1,
+    },
+    containerScroll: {
+        paddingBottom: 40,
     }
-})
+});

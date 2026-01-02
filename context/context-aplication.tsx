@@ -21,6 +21,8 @@ type AppContextType = {
     setLoading: (loading: boolean) => void;
     isLogin: boolean;
     setIsLogin: (isLogin: boolean) => void;
+    infoHelp:any;
+    setInfoHelp:( info:any)=>void;
 };
 
 // Creamos valores por defecto
@@ -31,6 +33,8 @@ const defaultContext: AppContextType = {
     setLoading: () => { },
     isLogin: false,
     setIsLogin: () => { },
+    infoHelp: null,
+    setInfoHelp:()=>{},
 };
 
 // Creamos el contexto
@@ -41,6 +45,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState(defaultContext.user);
     const [loading, setLoading] = useState(defaultContext.loading);
     const [isLogin, setIsLogin] = useState(defaultContext.isLogin);
+    const [infoHelp,setInfoHelp] = useState(null);
     useEffect(() => {
         const cargarCredenciales = async () => {
             try {
@@ -57,7 +62,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         cargarCredenciales();
     }, [])
     return (
-        <AppContext.Provider value={{ user, setUser, loading, setLoading, isLogin, setIsLogin }}>
+        <AppContext.Provider value={{ user, setUser, loading, setLoading,
+            isLogin, setIsLogin,infoHelp,setInfoHelp }}>
             {children}
         </AppContext.Provider>
     );
