@@ -42,6 +42,23 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="config"
+        options={{
+          title: 'Config',
+          tabBarButton: (props) => (
+            <HapticTab
+              {...props}
+              disabled={loading}
+              style={[
+                props.style, // importante: preserva estilos originales
+                { opacity: loading ? 0.4 : 1 },
+              ]}
+            />
+          ),
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name={"configurar.fill" as any} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="docentes"
         options={{
           title: 'Docentes',
@@ -56,6 +73,23 @@ export default function TabLayout() {
             />
           ),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name={"docentes.fill" as any} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="horarios"
+        options={{
+          title: 'Horarios',
+          tabBarButton: (props) => (
+            <HapticTab
+              {...props}
+              disabled={loading}
+              style={[
+                props.style, // importante: preserva estilos originales
+                { opacity: loading ? 0.4 : 1 },
+              ]}
+            />
+          ),
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name={"horarios.fill" as any} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -76,9 +110,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="horarios"
+        name="asistencia"
         options={{
-          title: 'Horarios',
+          title: 'Control',
           tabBarButton: (props) => (
             <HapticTab
               {...props}
@@ -89,7 +123,7 @@ export default function TabLayout() {
               ]}
             />
           ),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name={"horarios.fill" as any} color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name={"control.fill" as any} color={color} />,
         }}
       />
       <Tabs.Screen

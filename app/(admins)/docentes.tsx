@@ -29,6 +29,7 @@ export default function Docente() {
   const [clubs, setClubs] = useState([]);
   const [cinturones, setCinturones] = useState([]);
   const [docSelect, setDocSelect] = useState<any>(null);
+  const [editarDato,setEditarDato] = useState(false);
   const scale = useSharedValue(1);
   const rotation = useSharedValue(0);
   const animatedStyle = useAnimatedStyle(() => ({
@@ -39,9 +40,17 @@ export default function Docente() {
   }));
   const guardarInformacion = async (data: any) => {
     try {
-      const datos = {...data,latitud:infoHelp.latitud,longitud:infoHelp.longitud,idubicacion:infoHelp.idubicacion}
+      let datos={}
+      if (infoHelp!=null){
+        datos={...data,latitud:infoHelp.latitud,longitud:infoHelp.longitud,idubicacion:infoHelp.idubicacion}
+      }else{
+        datos = {...data}
+      }
       const resul = await ApiRest.agregarDocente(datos);
       if (resul.ok) {
+        setEditarDato(false);
+        setDocSelect(null);
+        setEditDocente(false);
         setInfoHelp(null);
         await obtenerInfo()
       } else {
@@ -54,10 +63,26 @@ export default function Docente() {
       setLoading(false);
     }
   }
+  const cambiarEstado=async (info:any)=>{
+    try {
+      setLoading(true);
+      const result = await ApiRest.editarEstadoDoc(info);
+      if(result.ok){
+        obtenerInfo();
+      }else{
+        ToastAndroid.showWithGravity(result.error, ToastAndroid.LONG, ToastAndroid.CENTER);  
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error inesperado';
+      ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.CENTER);
+    }finally{
+      setLoading(false);
+    }
+  }
   const obtenerInfo = async () => {
     try {
       setLoading(true)
-      const infoDocente = await ApiRest.getDocentes({ 'idclub': 5 });
+      const infoDocente = await ApiRest.getDocentes({ 'idclub': user?.idclub });
       if (infoDocente.ok) {
         setDocentes(infoDocente.ok);
       } else {
@@ -71,7 +96,7 @@ export default function Docente() {
         setClubs([])
         console.log(infoClub.error);
       }
-      const infoCinturon = await ApiRest.getCinturones();
+      const infoCinturon = await ApiRest.getCinturones({isclub:user?.idclub});
       if (infoCinturon.ok) {
         setCinturones(infoCinturon.ok);
       } else {
@@ -122,11 +147,14 @@ export default function Docente() {
               return (
                 <DocenteCard info={item} 
                   onEdit={(info)=>{
-                    console.log(info);
+                    setEditarDato(true);
                     setDocSelect(info);
                     setEditDocente(true);
                   }}
-                  onPress={() => setEditDocente(true)} key={index} />
+                  onPress={(info) => {setEditarDato(false);setDocSelect(info);setEditDocente(true)}} 
+                  onDelete={(info)=>cambiarEstado(info)}
+                  onInactivate={(info)=>cambiarEstado(info)}
+                  key={index} />
               )
             })
           ) : (
@@ -143,12 +171,14 @@ export default function Docente() {
           animatedStyle, // Aquí aplicamos el pulso de zoom
           // Mantenemos el efecto visual de cuando el usuario lo presiona
         ]}
-        onPress={() => setEditDocente(true)}
+        onPress={() => {setDocSelect(null);setEditarDato(true);setEditDocente(true)}}
       >
         <Ionicons name="add" size={30} color="white" />
       </AnimatedPressable>
-      <BaseModal visible={editDocente} onClose={() => setEditDocente(false)} onSave={() => { }} title='Modal reutilizable' showFooter={false}>
+      <BaseModal visible={editDocente} onClose={() => setEditDocente(false)} onSave={() => { }} 
+        title= {`${editarDato?'Editar Docente':'Datos Docente'}`} showFooter={false}>
         <FormularioDocente
+          editar={editarDato}
           initialData={docSelect}
           clubes={clubs}
           cinturones={cinturones}

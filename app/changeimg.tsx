@@ -30,8 +30,8 @@ function RenderIcon({
 }
 
 
-const changeimg = () => {
-    const { id, tipo } = useLocalSearchParams<SearchParams>();
+const ChangeImg = () => {
+    const { id, tipo } = useLocalSearchParams() as unknown as SearchParams;
     const [imagen, setImagen] = useState<string | null>(null);
 
     const saveImages = async () => {
@@ -139,7 +139,7 @@ const changeimg = () => {
     )
 }
 
-export default changeimg
+export default ChangeImg
 
 const styles = StyleSheet.create({
     container: {

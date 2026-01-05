@@ -44,14 +44,14 @@ export default function PositionMap() {
 
     const manejarMensaje = (event: any) => {
         const datos = JSON.parse(event.nativeEvent.data);
-        ubicacion.current = datos;// Aquí ya tienes la lat y lng actualizadas
+        ubicacion.current = {latitud:datos.lat,longitud:datos.lng};// Aquí ya tienes la lat y lng actualizadas
     };
 
     const guardarUbicacion = async () => {
         try {
             setLoading(true);
-            const result = await ApiRest.agregarLocation({tipo,id,...ubicacion.current});
-            console.log(result.ok)
+            const result = await ApiRest.agregarLocation({tipo,idubicacion:id,...ubicacion.current});
+            console.log({tipo,idubicacion:id,...ubicacion.current})
             if(result.ok){
                 setInfoHelp({ ...infoHelp, 'idubicacion':result.ok.insertId===0?id:result.ok.insertId,...ubicacion.current})
                 router.back()

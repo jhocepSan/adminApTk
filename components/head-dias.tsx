@@ -1,7 +1,8 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { Ionicons } from '@expo/vector-icons'; // Importamos iconos
-import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useRef, useState } from 'react';
+import { LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { DIAS_SEMANA } from '../constants/typesdata';
 
 type HeadProps = {
     onPress?: (valor: 'L' | 'M' | 'MI' | 'J' | 'V' | 'S' | 'D') => void;
@@ -10,41 +11,52 @@ type HeadProps = {
     darkColor?: string;
 };
 
-
 export default function HeaderDias({
     onPress,
-    seleccionado, // Recibimos el valor actual como prop
+    seleccionado,
 }: HeadProps) {
     const backgroundColor = useThemeColor({ light: '#ffffff', dark: '#1c1c1e' }, 'background');
     const textColor = useThemeColor({ light: '#111111', dark: '#ffffff' }, 'text');
     const activeColor = '#007AFF';
+    
+    // 1. REFS Y ESTADO PARA POSICIONES
+    const scrollRef = useRef<ScrollView>(null);
+    const [positions, setPositions] = useState<Record<string, number>>({});
 
-    const botones = [
-        { id: 'L', label: 'Lunes', icon: 'calendar-outline' },
-        { id: 'M', label: 'Martes', icon: 'calendar-outline' },
-        { id: 'MI', label: 'Miércoles', icon: 'calendar-outline' },
-        { id: 'J', label: 'Jueves', icon: 'calendar-outline' }, // Cambié IDs para que sean únicos
-        { id: 'V', label: 'Viernes', icon: 'calendar-outline' },
-        { id: 'S', label: 'Sábado', icon: 'calendar-outline' },
-        { id: 'D', label: 'Domingo', icon: 'calendar-outline' },
-    ];
+    // 2. EFECTO DE AUTO-SCROLL
+    useEffect(() => {
+        if (positions[seleccionado] !== undefined) {
+            scrollRef.current?.scrollTo({
+                x: positions[seleccionado] - 20, // -20 para dar un pequeño margen izquierdo
+                animated: true,
+            });
+        }
+    }, [seleccionado, positions]);
+
     const manejarPresion = (id: 'L' | 'M' | 'MI' | 'J' | 'V' | 'S' | 'D' ) => {
         if (onPress) {
             onPress(id);
         }
     };
+
     return (
         <View style={styles.wrapper}>
             <ScrollView
+                ref={scrollRef} // 3. ASIGNAR REF
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContainer}
             >
-                {botones.map((boton) => {
+                {DIAS_SEMANA.map((boton) => {
                     const esActivo = seleccionado === boton.id;
                     return (
                         <Pressable
-                            key={boton.label} // Usa label o un ID único
+                            key={boton.id}
+                            // 4. CAPTURAR POSICIÓN X
+                            onLayout={(event: LayoutChangeEvent) => {
+                                const { x } = event.nativeEvent.layout;
+                                setPositions(prev => ({ ...prev, [boton.id]: x }));
+                            }}
                             onPress={() => manejarPresion(boton.id as any)}
                             style={[
                                 styles.card,
@@ -77,24 +89,22 @@ export default function HeaderDias({
 const styles = StyleSheet.create({
     wrapper: {
         width: '100%',
-        height: 50, // Altura suficiente para que el botón activo no se corte
+        height: 60, // Ajustado para evitar cortes en la sombra
     },
     scrollContainer: {
         flexDirection: 'row',
         alignItems: 'flex-start',
         paddingHorizontal: 15,
-        gap: 2, // Espaciado entre días
         paddingVertical: 5,
     },
     card: {
-        paddingHorizontal: 10, 
-        marginRight: 5, // Espacio entre cada tarjeta (más fiable que gap en ScrollView antiguos)
+        paddingHorizontal: 15, // Un poco más de padding para mejor UX
+        marginRight: 8,
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,
         borderWidth: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        // Sombra
         elevation: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -106,7 +116,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     texto: {
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: 'bold',
     },
     icono: {

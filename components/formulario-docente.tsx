@@ -1,3 +1,4 @@
+import { useAppContext } from '@/context/context-aplication';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -9,6 +10,7 @@ import { ThemedTextInput } from './themed-text-input';
 
 interface FormProps {
   initialData?: any;
+  editar: boolean;
   onSave: (data: any) => void;
   clubes: { nombre: string; abreviado: string; idclub: any }[]; // Lista para el selector
   cinturones: { nombre: string; color: string; idcinturon: any }[];
@@ -16,7 +18,8 @@ interface FormProps {
 
 
 
-export function FormularioDocente({ initialData, onSave, clubes, cinturones }: FormProps) {
+export function FormularioDocente({ initialData,editar, onSave, clubes, cinturones }: FormProps) {
+  const {user} =useAppContext()
   const [form, setForm] = useState({
     iddocente: initialData?.iddocente || 0,
     nombres: initialData?.nombres || '',
@@ -27,9 +30,10 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
     genero: initialData?.genero || 'M',
     ci: initialData?.ci || '',
     celular: initialData?.celular || '',
-    idclub: initialData?.idclub || null,
+    idclub: initialData?.idclub || user?.idclub,
     direccion: initialData?.direccion || '',
     idadjunto: initialData?.idadjunto || 0,
+    iddato:initialData?.iddato ||0,
     idcinturon: initialData?.idcinturon || 0,
     idubicacion: initialData?.idubicacion || 0,
     latitud: initialData?.latitud||0,
@@ -37,7 +41,7 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const router = useRouter();
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(new Date(initialData?.fecha_nac));
   const calcularEdad = (fechaNacimiento: Date) => {
     const hoy = new Date();
     const cumple = new Date(fechaNacimiento);
@@ -96,16 +100,18 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
           style={{ marginBottom: 5 }}
           placeholder="Nombres"
           type='outlined'
+          editable={editar?true:false}
           value={form.nombres}
           onChangeText={(t) => setForm({ ...form, nombres: t.toUpperCase() })}
         />
         <ThemedTextInput
           placeholder="Apellidos"
           type='outlined'
+          editable={editar?true:false}
           value={form.apellidos}
           onChangeText={(t) => setForm({ ...form, apellidos: t.toUpperCase() })}
         />
-        <Pressable onPress={() => setShowDatePicker(true)}>
+        <Pressable onPress={() => setShowDatePicker(editar?true:false)}>
           <View pointerEvents="none">
             <View style={styles.row}>
               <View style={{ flex: 1, marginRight: 10 }}>
@@ -138,11 +144,12 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
         <View style={styles.row}>
           <View style={{ flex: 1, marginRight: 10 }}>
             <ThemedText style={styles.subLabel}>C.I.</ThemedText>
-            <ThemedTextInput keyboardType="numeric" type='outlined' value={form.ci} onChangeText={(t) => setForm({ ...form, ci: t })} />
+            <ThemedTextInput keyboardType="numeric" type='outlined'  editable={editar?true:false}
+              value={form.ci} onChangeText={(t) => setForm({ ...form, ci: t })} />
           </View>
           <View style={{ flex: 1 }}>
             <ThemedText style={styles.subLabel}>Celular</ThemedText>
-            <ThemedTextInput keyboardType="phone-pad"
+            <ThemedTextInput keyboardType="phone-pad"  editable={editar?true:false}
               type='outlined' value={form.celular} onChangeText={(t) => setForm({ ...form, celular: t })} />
           </View>
         </View>
@@ -153,6 +160,7 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
               key={g}
               style={[styles.genderBtn, form.genero === g && styles.genderBtnActive]}
               onPress={() => setForm({ ...form, genero: g })}
+              disabled={editar?false:true}
             >
               <ThemedText style={{ color: form.genero === g ? '#fff' : '#666' }}>
                 {g === 'M' ? 'Masculino' : 'Femenino'}
@@ -169,6 +177,7 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
           type='outlined'
           value={form.especialidad}
           onChangeText={(t) => setForm({ ...form, especialidad: t })}
+          editable={editar?true:false}
         />
         <ThemedText style={styles.subLabel}>Club</ThemedText>
         <Dropdown
@@ -184,6 +193,7 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
           valueField="idclub"
           placeholder="Seleccione un club"
           value={form.idclub}
+          disable={editar?false:true}
           onChange={item => {
             setForm({ ...form, idclub: item.idclub });
           }}
@@ -202,6 +212,7 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
           valueField="idcinturon"
           placeholder="Seleccione un Cinturon"
           value={form.idcinturon}
+          disable={editar?false:true}
           onChange={item => {
             setForm({ ...form, idcinturon: item.idcinturon });
           }}
@@ -211,6 +222,7 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
       <View style={styles.card}>
         <ThemedText style={styles.label}>Multimedia y Ubicación</ThemedText>
 
+        {editar&&
         <View style={styles.row}>
           <ThemedButton
             title="Foto"
@@ -224,7 +236,7 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
             style={{ ...styles.actionBtn, backgroundColor: '#214950' }}
             onPress={() => goRoot('positionmap',{id:initialData?.idubicacion,'tipo':'D'})}
           />
-        </View>
+        </View>}
 
         <ThemedTextInput
           placeholder="Descripción de la ubicación..."
@@ -234,15 +246,17 @@ export function FormularioDocente({ initialData, onSave, clubes, cinturones }: F
           value={form.direccion}
           onChangeText={(t) => setForm({ ...form, direccion: t })}
           style={styles.textArea}
+          editable={editar?true:false}
         />
       </View>
 
+      {editar&&
       <ThemedButton
         icon="save"
         title="GUARDAR DOCENTE"
         onPress={() => onSave(form)}
         style={styles.submitBtn}
-      />
+      />}
     </ScrollView>
   );
 }

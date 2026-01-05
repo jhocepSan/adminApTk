@@ -15,7 +15,7 @@ export default function TabLayout() {
   // 🔐 BLOQUEO TOTAL SI YA ESTÁ LOGUEADO
   useEffect(() => {
     if (isLogin) {
-      router.replace('/(admins)/register');
+      router.replace('/(admins)/perfil');
     }
   }, [isLogin]);
 

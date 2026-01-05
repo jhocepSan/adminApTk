@@ -4,7 +4,7 @@ import Store from '../restapi/store';
 export type Usuario = {
     id?: number;
     nombres: string;
-    apellido: string;
+    apellidos: string;
     nombreclub: string;
     correo: string;
     latitud: number;
@@ -12,6 +12,10 @@ export type Usuario = {
     cedula: number;
     celular: number;
     idclub: number;
+    foto:string;
+    idadjunto:number;
+    idubicacion:number;
+    direccion:string;
 };
 // Definimos el tipo de estado global
 type AppContextType = {
@@ -51,6 +55,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             try {
                 let result = await Store.cargarKey()
                 if (result) {
+                    console.log(JSON.parse(result));
                     setUser(JSON.parse(result));
                     setIsLogin(true);
                 }

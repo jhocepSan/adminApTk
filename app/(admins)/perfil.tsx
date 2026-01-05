@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/themed-text'
 import { ThemedView } from '@/components/themed-view'
 import { imgEdit } from '@/constants/typesdata'
 import { useAppContext } from '@/context/context-aplication'
+import { url } from '@/restapi/api'
 import store from '@/restapi/store'
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
@@ -44,40 +45,50 @@ export default function Perfil() {
             params: { ...info }
         });
     }
+
     return (
         <ThemedView style={styles.container}>
             {/* HEADER ÚNICO CORREGIDO */}
             <ThemedView style={styles.header}>
                 <Image
-                    source={require('@/assets/images/tk-welcome.png')}
+                    source={user?.foto ? { uri: `${url + '/adjunto/' + user?.foto}` } : require('@/assets/images/tk-welcome.png')}
                     style={styles.imagenPerfil}
                 />
 
                 <View style={styles.userInfoContainer}>
                     <View style={styles.nameSection}>
                         <ThemedText type="title" style={styles.apellidoText}>
-                            {user?.apellido || 'Apellido'}
+                            {user?.nombres || 'Nombre'} {user?.apellidos || 'Apellido'}
                         </ThemedText>
                         <ThemedText style={styles.nombreText}>
-                            {user?.nombres || 'Nombre'}
+                            Celular: {user?.celular || 'Nombre'}
+                        </ThemedText>
+                        <ThemedText style={styles.nombreText}>
+                            {user?.correo || ''}
                         </ThemedText>
                     </View>
 
                     <View style={styles.clubBadge}>
                         <Text style={styles.clubText}>
-                            {user?.nombreclub || 'Sin Club'}
+                            Club: {user?.nombreclub || 'Sin Club'}
                         </Text>
                     </View>
                 </View>
 
                 {/* BOTÓN DE LOGOUT */}
-                <ThemedButton
-                    icon="logout"
-                    iconSet="material"
-                    onPress={() => cerrarUsuario()}
-                    title=""
-                    style={styles.logoutIconButton}
-                />
+                <View style={styles.containerBtn}>
+                    <ThemedButton
+                        icon="logout"
+                        iconSet="material"
+                        onPress={() => cerrarUsuario()}
+                        title=""
+                        style={styles.logoutIconButton}
+                    />
+                    <Text style={[styles.textBtn,styles.clubText]}>
+                        Salir
+                    </Text>
+                </View>
+
             </ThemedView>
 
             <ScrollableView >
@@ -90,23 +101,16 @@ export default function Perfil() {
                         style={styles.btnEditUser}
                     />
                     <ThemedButton
-                        icon="camera-alt"
+                        icon="date-range"
                         iconSet="material"
-                        onPress={() => goRoot('changeimg', { 'id': user?.id ?? 0, 'tipo': 'U' })}
-                        title="Cambiar Foto"
+                        onPress={() => goRoot('editusuario', { 'id': 0, 'tipo': '' })}
+                        title="Calendario"
                         style={styles.btnEditUser}
                     />
-                    <ThemedButton
-                        icon="fmd-good"
-                        iconSet="material"
-                        onPress={() => goRoot('positionmap', { 'id': user?.id ?? 0, 'tipo': 'C' })}
-                        title="Cambiar Ubicación"
-                        style={styles.btnEditUser}
-                    />
-
                     <View style={styles.mapWrapper}>
                         <MapaLeaflet />
                     </View>
+                    
                 </ThemedView>
             </ScrollableView>
         </ThemedView>
@@ -122,7 +126,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingVertical: 1,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(150,150,150,0.1)',
     },
@@ -139,17 +143,22 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     nameSection: {
-        marginBottom: 2,
+        marginBottom: 0,
     },
     apellidoText: {
-        fontSize: 18,
+        fontSize: 15,
+        lineHeight: 18,
         fontWeight: 'bold',
         textTransform: 'uppercase',
+        alignItems:'center',
+        justifyContent:'center',
     },
     nombreText: {
         fontSize: 15,
+        lineHeight: 18,
         opacity: 0.7,
-        color: '#666'
+        color: '#666',
+        marginBottom: 0,
     },
     clubBadge: {
         alignSelf: 'flex-start',
@@ -183,12 +192,20 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     mapWrapper: {
-        height: '80%',
+        height: '90%',
         borderRadius: 15,
         overflow: 'hidden',
         marginTop: 1,
     },
     containerScroll: {
         paddingBottom: 40,
-    }
+    },
+    containerBtn: {
+        flexDirection: 'column',
+    },
+    textBtn:{
+        alignItems:'center',
+        justifyContent:'center',
+        textAlign:'center',
+    },
 });

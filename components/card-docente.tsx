@@ -6,17 +6,18 @@ import { GestureHandlerRootView, RectButton } from 'react-native-gesture-handler
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { interpolate, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { docenteCard } from '../constants/typesdata';
-
+import { url } from '../restapi/api';
 type UserCardProps = {
     info?: docenteCard;
-    onPress?: () => void;
+    onPress?: (info: docenteCard) => void;
     onEdit?: (info: docenteCard) => void;
-    onDelete?: (info: docenteCard) => void;
+    onDelete?: (info: { id: number, estado: string }) => void;
+    onInactivate?: (info: { id: number, estado: string }) => void;
 };
 
 const DEFAULT_AVATAR = 'cdn-icons-png.flaticon.com';
 
-export function DocenteCard({ info, onPress, onEdit, onDelete }: UserCardProps) {
+export function DocenteCard({ info, onPress, onEdit, onDelete, onInactivate }: UserCardProps) {
     const genderColor = info?.genero === 'F' ? '#FF69B4' : '#4169E1';
     const backgroundColor = useThemeColor({ light: '#ffffff', dark: '#1c1c1e' }, 'background');
     const textColor = useThemeColor({ light: '#111', dark: '#eee' }, 'text');
@@ -25,17 +26,28 @@ export function DocenteCard({ info, onPress, onEdit, onDelete }: UserCardProps) 
     // Acción Derecha (Eliminar) con Reanimated
     const RightAction = (prog: SharedValue<number>, drag: SharedValue<number>) => {
         const styleAnimation = useAnimatedStyle(() => ({
-            transform: [{ translateX: interpolate(drag.value, [-100, 0], [0, 100]) }],
+            transform: [{ translateX: interpolate(drag.value, [-160, 0], [0, 160]) }],
             opacity: interpolate(prog.value, [0, 1], [0, 1]),
         }));
 
         return (
             <Reanimated.View style={[styles.rightActionContainer, styleAnimation]}>
                 <RectButton
-                    style={styles.deleteButton}
-                    onPress={() => onDelete?.(info!)}
+                    style={[styles.actionButton, { backgroundColor: `${info!.estado === 'A' ? '#FFA500' : '#55a000c9'}` }]} // Color naranja/amarillo
+                    onPress={() => onInactivate?.({ id: info!.iddocente, estado: info!.estado === 'A' ? 'I' : 'A' })}
                 >
-                    <View style={{ alignItems: 'center' }}>
+                    <View style={styles.buttonContent}>
+                        <Ionicons name="pause-circle-outline" size={24} color="white" />
+                        <Text style={styles.actionText}>{info!.estado === 'A' ? 'Inactivar' : 'Activar'}</Text>
+                    </View>
+                </RectButton>
+
+                {/* Botón Eliminar */}
+                <RectButton
+                    style={[styles.actionButton, { backgroundColor: '#FF3B30' }]} // Color rojo
+                    onPress={() => onDelete?.({ id: info!.iddocente, estado: 'E' })}
+                >
+                    <View style={styles.buttonContent}>
                         <Ionicons name="trash-outline" size={24} color="white" />
                         <Text style={styles.actionText}>Eliminar</Text>
                     </View>
@@ -82,7 +94,7 @@ export function DocenteCard({ info, onPress, onEdit, onDelete }: UserCardProps) 
                 containerStyle={styles.swipeableContainer}
             >
                 <Pressable
-                    onPress={onPress}
+                    onPress={() => onPress?.(info!)}
                     style={({ pressed }) => [
                         styles.card,
                         { backgroundColor, borderColor, opacity: pressed ? 0.9 : 1 },
@@ -91,7 +103,7 @@ export function DocenteCard({ info, onPress, onEdit, onDelete }: UserCardProps) 
                     <View style={[styles.genderIndicator, { backgroundColor: genderColor }]} />
 
                     <Image
-                        source={{ uri: info?.imagen || DEFAULT_AVATAR }}
+                        source={{ uri: url + '/adjunto/' + info?.imagen || DEFAULT_AVATAR }}
                         style={[styles.avatar, { borderColor: genderColor, borderWidth: 2 }]}
                     />
 
@@ -105,6 +117,11 @@ export function DocenteCard({ info, onPress, onEdit, onDelete }: UserCardProps) 
                             <Text style={[styles.meta, { color: textColor }]}>{info?.cinturon}</Text>
                             <Text style={styles.dot}>-</Text>
                             <Text style={[styles.meta, { color: textColor }]}>{info?.name_club}</Text>
+                        </View>
+                        <View style={[styles.clubBadge,{backgroundColor: `${info?.estado==='A'?'#72ff2093':'#fcf823da'}`}]}>
+                            <Text style={styles.estadoText}>
+                                {info?.name_estado || '---?'}
+                            </Text>
                         </View>
                     </View>
                     <Ionicons name="chevron-forward" size={18} color="#ccc" />
@@ -164,11 +181,6 @@ const styles = StyleSheet.create({
         opacity: 0.3,
         color: '#fff'
     },
-    // Estilos de Acciones
-    rightActionContainer: {
-        width: 90,
-        flexDirection: 'row',
-    },
     leftActionContainer: {
         width: 100,
         flexDirection: 'row',
@@ -192,4 +204,28 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginTop: 4,
     },
+    rightActionContainer: {
+        flexDirection: 'row', // Clave para ponerlos en línea
+        width: 150, // Suma del ancho de ambos botones
+        height: '100%',
+    },
+    actionButton: {
+        flex: 1, // Cada botón ocupa la mitad (80px si el total es 160)
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    buttonContent: {
+        alignItems: 'center',
+    },
+    clubBadge: {
+        alignSelf: 'flex-start',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    estadoText:{
+        fontSize: 11,
+        color: '#214950ff',
+        fontWeight: 'bold',
+    }
 });

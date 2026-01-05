@@ -1,15 +1,17 @@
 import { ThemedText } from '@/components/themed-text';
+import { horarioType } from '@/constants/typesdata';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 interface HorarioProps {
+    info: horarioType;
     hora: string;
     actividad: string;
     estaOcupado: boolean;
     onPress?: () => void;
 }
 
-export function FilaHorario({ hora, actividad, estaOcupado, onPress }: HorarioProps) {
+export function FilaHorario({ info, hora, actividad, estaOcupado, onPress }: HorarioProps) {
     // Color dinámico según estado
     const statusColor = estaOcupado ? '#FF3B30' : '#4CD964';
 
@@ -17,7 +19,7 @@ export function FilaHorario({ hora, actividad, estaOcupado, onPress }: HorarioPr
         <View style={styles.fila}>
             {/* Lado Izquierdo: Hora e Indicador */}
             <View style={styles.contenedorHora}>
-                <ThemedText style={styles.textoHora}>{hora}</ThemedText>
+                <ThemedText style={styles.textoHora}>{info.hora_ini}</ThemedText>
                 <View style={[styles.indicador, { backgroundColor: statusColor }]} />
             </View>
 
@@ -34,10 +36,17 @@ export function FilaHorario({ hora, actividad, estaOcupado, onPress }: HorarioPr
                     }
                 ]}
             >
+                <ThemedText style={styles.textoDocente}>Docente: {info.nombre_docente}</ThemedText>
                 <ThemedText type="defaultSemiBold">{actividad}</ThemedText>
-                <ThemedText style={styles.textoEstado}>
-                    {estaOcupado ? 'Ocupado' : 'Disponible'}
-                </ThemedText>
+                <View style={styles.contLetra}>
+                    <ThemedText type='default'>Salida: {info.hora_fin}</ThemedText>
+                    <ThemedText style={styles.textoEstado}>
+                        {estaOcupado ? 'Lleno' : 'Disponible'}
+                    </ThemedText>
+                    <ThemedText style={styles.textoEstado}>
+                        {`${info.cant_alumnos}/${info.limite_alumnos}`}
+                    </ThemedText>
+                </View>
             </Pressable>
         </View>
     );
@@ -59,6 +68,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
     },
+    contLetra: {
+        flexDirection: 'row',
+        gap: 10,
+    },
     indicador: {
         width: 4,
         height: '100%',
@@ -70,7 +83,7 @@ const styles = StyleSheet.create({
     tarjeta: {
         flex: 1,
         marginLeft: 15,
-        padding: 12,
+        paddingLeft: 12,
         borderRadius: 8,
         borderLeftWidth: 5,
         borderTopWidth: 1,
@@ -84,6 +97,17 @@ const styles = StyleSheet.create({
     textoEstado: {
         fontSize: 12,
         opacity: 0.6,
-        marginTop: 4,
+        marginTop: 0,
+        paddingRight: 3,
+        paddingLeft: 3,
+        backgroundColor: '#6363634b',
+        borderRadius: 6,
+    },
+    textoDocente: {
+        fontSize: 12,
+        opacity: 0.6,
+        marginTop: 5,
+        lineHeight: 15,
+
     }
 });

@@ -4,15 +4,15 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView, RectButton } from 'react-native-gesture-handler';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { interpolate, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { estudianteType } from '../constants/typesdata';
+import { estuAsisType } from '../constants/typesdata';
 
-type UserCardProps = {
-    info?: estudianteType;
+type AsisCardProps = {
+    info?: estuAsisType;
     onPress?: () => void;
     onEdit?: (info: any) => void;
-    onDelete?: (info: { id: any, estado: string }) => void;
-    onInactivate?: (info: { id: any, estado: string }) => void;
-    disableSwipe?: boolean; 
+    onPermiso?: (info: { id: any, estado: number }) => void;
+    onInactivate?: (info: { id: any, estado: number }) => void;
+    disableSwipe?: boolean;
     lightColor?: string;
     darkColor?: string;
 };
@@ -20,14 +20,14 @@ type UserCardProps = {
 const DEFAULT_AVATAR =
     'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
-export function UserCard({
+export function EstCardAsis({
     info,
     onPress,
     onEdit,
-    onDelete,
+    onPermiso,
     onInactivate,
     disableSwipe = false,
-}: UserCardProps) {
+}: AsisCardProps) {
 
     const backgroundColor = useThemeColor(
         { light: '#a8a8a86c', dark: '#9c9c9c33' },
@@ -53,23 +53,23 @@ export function UserCard({
         return (
             <Reanimated.View style={[styles.rightActionContainer, styleAnimation]}>
                 <RectButton
-                    style={[styles.actionButton, { backgroundColor: `${info?.estado === 'A' ? '#FFA500' : '#55a000c9'}` }]} // Color naranja/amarillo
-                    onPress={() => onInactivate?.({ id: info?.idestudi, estado: info?.estado === 'A' ? 'I' : 'A' })}
+                    style={[styles.actionButton, { backgroundColor: `${info?.presente === 1 ? '#ff3c00ff' : '#64962ab2'}` }]} // Color naranja/amarillo
+                    onPress={() => onInactivate?.({ id: info?.idasistencia, estado: info?.presente === 1 ? 2 : 1 })}
                 >
                     <View style={styles.buttonContent}>
                         <Ionicons name="pause-circle-outline" size={24} color="white" />
-                        <Text style={styles.actionText}>{info?.estado === 'A' ? 'Inactivar' : 'Activar'}</Text>
+                        <Text style={styles.actionText}>{info?.presente === 1 ? 'Faltó' : 'Presente'}</Text>
                     </View>
                 </RectButton>
 
                 {/* Botón Eliminar */}
                 <RectButton
-                    style={[styles.actionButton, { backgroundColor: '#FF3B30' }]} // Color rojo
-                    onPress={() => onDelete?.({ id: info?.idestudi.toString(), estado: 'E' })}
+                    style={[styles.actionButton, { backgroundColor: '#20d2ff93' }]} // Color rojo
+                    onPress={() => onPermiso?.({ id: info?.idasistencia, estado: 4 })}
                 >
                     <View style={styles.buttonContent}>
-                        <Ionicons name="trash-outline" size={24} color="white" />
-                        <Text style={styles.actionText}>Eliminar</Text>
+                        <Ionicons name="fitness" size={24} color="white" />
+                        <Text style={styles.actionText}>Permiso</Text>
                     </View>
                 </RectButton>
             </Reanimated.View>
@@ -101,7 +101,18 @@ export function UserCard({
             </Reanimated.View>
         );
     };
-
+    const getColorAsiste =()=>{
+        let valor= info?.presente;
+        if(valor===1){
+            return '#72ff2093'
+        }else if(valor===2){
+            return '#ff2020ff'
+        }else if(valor===3){
+            return '#20d2ff93'
+        }else{
+            return '#da20ff71'
+        }
+    }
     return (
         <GestureHandlerRootView style={styles.container}>
             <ReanimatedSwipeable
@@ -136,13 +147,18 @@ export function UserCard({
                         >
                             {info?.nombres} {info?.apellidos}
                         </Text>
-                        <View style={[styles.leftActionContainer, { gap: 10 }]}>
-                            <Text style={[styles.meta, { color: textColor }]}>
-                                Edad: {info?.edad}
-                            </Text>
-                            <View style={[styles.clubBadge, { backgroundColor: `${info?.estado === 'A' ? '#72ff2093' : '#fcf823da'}` }]}>
-                                <Text style={styles.estadoText}>
-                                    {info?.name_estado || '---?'}
+                        <View style={styles.metaRow}>
+                            <View style={styles.textContainer}>
+                                <Text style={[styles.meta, { color: textColor }]}>
+                                    Edad: {info?.edad}  Estado: {info?.name_estado}
+                                </Text>
+                                <Text style={[styles.meta, { color: textColor }]}>
+                                    Celular: {info?.celular}
+                                </Text>
+                            </View>
+                            <View style={[styles.clubBadge, { backgroundColor: getColorAsiste() }]}>
+                                <Text style={styles.estadoText} numberOfLines={1}>
+                                    {info?.estado_presente}
                                 </Text>
                             </View>
                         </View>
@@ -150,7 +166,7 @@ export function UserCard({
                             Grado: {info?.name_cinturon} ({info?.colores})
                         </Text>
                     </View>
-                    {!disableSwipe&&<Ionicons name="chevron-forward" size={18} color="#ccc" />}
+                    {!disableSwipe && <Ionicons name="chevron-forward" size={18} color="#ccc" />}
                 </Pressable>
             </ReanimatedSwipeable>
         </GestureHandlerRootView>
@@ -188,7 +204,8 @@ const styles = StyleSheet.create({
         marginRight: 12,
     },
     info: {
-        width: '70%',
+        flex: 1, // Cambiado de width: 100% a flex: 1 para que respete el contenedor
+        marginRight: 10,
     },
     name: {
         fontSize: 16,
@@ -198,6 +215,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         opacity: 0.8,
         marginTop: 2,
+
     },
     leftActionContainer: {
         width: 100,
@@ -235,15 +253,26 @@ const styles = StyleSheet.create({
     buttonContent: {
         alignItems: 'center',
     },
+    metaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between', // Separa el texto del badge
+        gap: 8,
+        marginTop: 2,
+    },
+    textContainer: {
+        flex: 1, // Esto permite que el texto ocupe el espacio sobrante
+    },
     clubBadge: {
-        alignSelf: 'flex-start',
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderRadius: 4,
+        minWidth: 70, // Usa minWidth en lugar de width % para evitar deformación
+        alignItems: 'center',
     },
     estadoText: {
-        fontSize: 11,
-        color: '#214950ff',
+        fontSize: 13,
+        color: '#ccccccff',
         fontWeight: 'bold',
     }
 });

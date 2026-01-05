@@ -10,6 +10,7 @@ interface BuscadorProps {
     onClear?: () => void;
     showAddButton : boolean; // Valor por defecto
     onAddPress?:()=>void;
+    onLoadPress?:()=>void;
 }
 
 export default function Buscador({
@@ -19,11 +20,13 @@ export default function Buscador({
     onClear,
     showAddButton = false, // Valor por defecto
     onAddPress,
+    onLoadPress,
 }: BuscadorProps) {
 
     const backgroundColor = useThemeColor({ light: '#c4c2c256', dark: '#4f4f50ce' }, 'background');
     const textColor = useThemeColor({ light: '#000', dark: '#fff' }, 'text');
     const accentColor = '#5a9958ff';
+    const reloadColor = '#ff9d1da6';
     return (
         <View style={styles.mainWrapper}>
             <View style={[styles.container, { backgroundColor ,flex:1}]}>
@@ -44,6 +47,15 @@ export default function Buscador({
                     </Pressable>
                 )}
             </View>
+            
+            {showAddButton && (
+                <Pressable
+                    onPress={onLoadPress}
+                    style={[styles.addButton, { backgroundColor: reloadColor }]}
+                >
+                    <Ionicons name="reload-outline" size={24} color="#fff" />
+                </Pressable>
+            )}
             {showAddButton && (
                 <Pressable
                     onPress={onAddPress}

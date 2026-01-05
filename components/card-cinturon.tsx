@@ -4,29 +4,27 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView, RectButton } from 'react-native-gesture-handler';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { interpolate, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { estudianteType } from '../constants/typesdata';
+import { cinturonType } from '../constants/typesdata';
 
 type UserCardProps = {
-    info?: estudianteType;
+    info?: cinturonType;
     onPress?: () => void;
     onEdit?: (info: any) => void;
-    onDelete?: (info: { id: any, estado: string }) => void;
-    onInactivate?: (info: { id: any, estado: string }) => void;
-    disableSwipe?: boolean; 
+    onDelete?: (info: { id: any, estado: number }) => void;
+    onInactivate?: (info: { id: any, estado: number }) => void;
     lightColor?: string;
     darkColor?: string;
 };
 
 const DEFAULT_AVATAR =
-    'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+    'https://cdn-icons-png.flaticon.com/512/149/149082.png';
 
-export function UserCard({
+export function CinturonCard({
     info,
     onPress,
     onEdit,
     onDelete,
     onInactivate,
-    disableSwipe = false,
 }: UserCardProps) {
 
     const backgroundColor = useThemeColor(
@@ -43,7 +41,24 @@ export function UserCard({
         { light: '#ddd', dark: '#333' },
         'border'
     );
-    const genderColor = info?.genero === 'F' ? '#FF69B4' : '#4169E1';
+    const genderColor = (estado:any)=>{
+        if (estado === 2) {
+            return '#71bb46bb'
+        } else {
+            return '#9bc0bbff'
+        }
+    }
+    const genestadoColor = (estado: any) => {
+        if (estado === 1) {
+            return '#33a557ff'
+        } else if (estado === 2) {
+            return '#8c41e1ff'
+        } else if(estado ===3){
+            return '#e15441ff'
+        } else {
+            return '#9bc0bbff'
+        }
+    }
     const RightAction = (prog: SharedValue<number>, drag: SharedValue<number>) => {
         const styleAnimation = useAnimatedStyle(() => ({
             transform: [{ translateX: interpolate(drag.value, [-160, 0], [0, 160]) }],
@@ -53,19 +68,19 @@ export function UserCard({
         return (
             <Reanimated.View style={[styles.rightActionContainer, styleAnimation]}>
                 <RectButton
-                    style={[styles.actionButton, { backgroundColor: `${info?.estado === 'A' ? '#FFA500' : '#55a000c9'}` }]} // Color naranja/amarillo
-                    onPress={() => onInactivate?.({ id: info?.idestudi, estado: info?.estado === 'A' ? 'I' : 'A' })}
+                    style={[styles.actionButton, { backgroundColor: `${genderColor(info?.estado)}` }]} // Color naranja/amarillo
+                    onPress={() => onInactivate?.({ id: info?.idcinturon, estado: info?.estado === 1 ? 2 : 1 })}
                 >
                     <View style={styles.buttonContent}>
                         <Ionicons name="pause-circle-outline" size={24} color="white" />
-                        <Text style={styles.actionText}>{info?.estado === 'A' ? 'Inactivar' : 'Activar'}</Text>
+                        <Text style={styles.actionText}>{info?.estado === 1 ? 'Inactivar' : 'Activar'}</Text>
                     </View>
                 </RectButton>
 
                 {/* Botón Eliminar */}
                 <RectButton
                     style={[styles.actionButton, { backgroundColor: '#FF3B30' }]} // Color rojo
-                    onPress={() => onDelete?.({ id: info?.idestudi.toString(), estado: 'E' })}
+                    onPress={() => onDelete?.({ id: info?.idcinturon.toString(), estado: 3 })}
                 >
                     <View style={styles.buttonContent}>
                         <Ionicons name="trash-outline" size={24} color="white" />
@@ -109,8 +124,8 @@ export function UserCard({
                 enableTrackpadTwoFingerGesture
                 rightThreshold={40}
                 leftThreshold={40}
-                renderRightActions={disableSwipe ? undefined : RightAction}
-                renderLeftActions={disableSwipe ? undefined : LeftAction}
+                renderRightActions={RightAction}
+                renderLeftActions={LeftAction}
                 containerStyle={styles.swipeableContainer}
             >
                 <Pressable
@@ -119,38 +134,31 @@ export function UserCard({
                         styles.card,
                         {
                             backgroundColor, borderColor, opacity: pressed ? 0.5 : 1,
-                            borderBottomColor: genderColor, borderLeftColor: genderColor
+                            borderBottomColor: genestadoColor(info?.estado), borderLeftColor: genestadoColor(info?.estado)
                         },
                     ]}
                 >
-                    <View style={[styles.genderIndicator, { backgroundColor: genderColor }]} />
+                    <View style={[styles.genderIndicator, { backgroundColor: genestadoColor(info?.estado) }]} />
                     <Image
-                        source={{ uri: info?.imagen || DEFAULT_AVATAR }}
-                        style={[styles.avatar, { borderColor: genderColor, borderWidth: 1 }]}
+                        source={{ uri: DEFAULT_AVATAR }}
+                        style={[styles.avatar, { borderColor: genestadoColor(info?.estado), borderWidth: 1 }]}
                     />
 
                     <View style={styles.info}>
-                        <Text
-                            style={[styles.name, { color: textColor }]}
-                            numberOfLines={1}
-                        >
-                            {info?.nombres} {info?.apellidos}
-                        </Text>
-                        <View style={[styles.leftActionContainer, { gap: 10 }]}>
-                            <Text style={[styles.meta, { color: textColor }]}>
-                                Edad: {info?.edad}
+                        <View style={[styles.clubBadge, { backgroundColor: `${genestadoColor(info?.estado)}` }]}>
+                            <Text style={styles.estadoText}>
+                                {info?.name_estado || '---?'}
                             </Text>
-                            <View style={[styles.clubBadge, { backgroundColor: `${info?.estado === 'A' ? '#72ff2093' : '#fcf823da'}` }]}>
-                                <Text style={styles.estadoText}>
-                                    {info?.name_estado || '---?'}
-                                </Text>
-                            </View>
                         </View>
+
+                        <Text style={[styles.name, { color: textColor }]}>
+                            Cinturón: {info?.nombre}
+                        </Text>
                         <Text style={[styles.meta, { color: textColor }]}>
-                            Grado: {info?.name_cinturon} ({info?.colores})
+                            Color: {info?.colores}
                         </Text>
                     </View>
-                    {!disableSwipe&&<Ionicons name="chevron-forward" size={18} color="#ccc" />}
+                    <Ionicons name="chevron-forward" size={18} color="#ccc" />
                 </Pressable>
             </ReanimatedSwipeable>
         </GestureHandlerRootView>

@@ -4,8 +4,8 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type HeadProps = {
-    onPress?: (valor: 'F' | 'H' | 'A') => void;
-    seleccionado: 'F' | 'H' | 'A';
+    onPress?: (valor: 'F' | 'M' | 'A') => void;
+    seleccionado: 'F' | 'M' | 'A';
     lightColor?: string;
     darkColor?: string;
 };
@@ -21,11 +21,11 @@ export default function HeaderEstudiantes({
 
     const botones = [
         { id: 'F', label: 'MUJERES', icon: 'woman' },
-        { id: 'H', label: 'VARONES', icon: 'man' },
+        { id: 'M', label: 'VARONES', icon: 'man' },
         { id: 'A', label: 'TODOS', icon: 'people' },
     ] as const;
 
-    const manejarPresion = (id: 'F' | 'H' | 'A') => {
+    const manejarPresion = (id: 'F' | 'M' | 'A') => {
         if (onPress) {
             onPress(id);
         }
